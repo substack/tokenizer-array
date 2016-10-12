@@ -14,7 +14,7 @@
     "tape": "^4.6.2"
   },
   "scripts": {
-    "test": "tape test*.js"
+    "test": "tape test/*.js"
   },
   "keywords": [
     "tokenizer"
