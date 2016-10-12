@@ -1,3 +1,4 @@
+var test = require('tape')
 var tokenizer = require('../')
 var rules = [
   { regex: /^\/\*([^*]|\*(?!\/))*\*\/$/, type: 'area comment' },
@@ -20,9 +21,20 @@ var rules = [
   { regex: /^(\s+)$/, type: 'whitespace' },
   { regex: /^\\\n?$/, type: 'line continue' }
 ]
-var src = process.argv[2]
-var tokens = tokenizer(src, rules)
+var expected = [
+  { "type": "identifier", "source": "float" },
+  { "type": "whitespace", "source": " " },
+  { "type": "identifier", "source": "b" },
+  { "type": "operator", "source": "=" },
+  { "type": "identifier", "source": "c" },
+  { "type": "operator", "source": "+" },
+  { "type": "number", "source": "2" },
+  { "type": "operator", "source": ";" }
+]
 
-tokens.forEach(function (token) {
-  console.log(JSON.stringify(token))
+test('c', function (t) {
+  var src = 'float b=c+2;'
+  var tokens = tokenizer(src, rules)
+  t.deepEqual(tokens, expected)
+  t.end()
 })
