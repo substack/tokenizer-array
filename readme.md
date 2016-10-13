@@ -54,6 +54,37 @@ $ node c.js 'float b=c+2;'
 {"type":"operator","source":";"}
 ```
 
+You can have nested pattern matching on capture groups:
+
+``` js
+var tokenizer = require('tokenizer-array')
+var rules = [
+  { type: 'string', regex: /^"([^"]*)"?$/, children: [ [
+    { type: 'word', regex: /^\w+$/ },
+    { type: 'whitespace', regex: /^\s+$/ },
+    { type: 'variable', regex: /^\$\w*$/ }
+  ] ] },
+  { type: 'identifier', regex: /^\w+$/ },
+  { type: 'whitespace', regex: /^\s+$/ },
+  { type: 'operator', regex: /^[-+=*\/.();]$/ },
+]
+var src = process.argv[2]
+var tokens = tokenizer(src, rules)
+
+tokens.forEach(function (token) {
+  console.log(JSON.stringify(token))
+})
+```
+
+output:
+
+```
+$ node children.js 'x="hello $xyz world"'
+{"type":"identifier","source":"x"}
+{"type":"operator","source":"="}
+{"type":"string","source":"\"hello $xyz world\"","children":[[{"type":"word","source":"hello"},{"type":"whitespace","source":" "},{"type":"variable","source":"$xyz"},{"type":"whitespace","source":" "},{"type":"word","source":"world"}]]}
+```
+
 # api
 
 ``` js
@@ -64,10 +95,11 @@ var tokenizer = require('tokenizer-array')
 
 Return an array of `tokens` by parsing a string `src` with an array of `rules`.
 
-Each `rule` in `rules` should have:
+For each `rule` in `rules`:
 
-* `rule.regex` - a pattern to match
-* `rule.type` - a string label
+* `rule.regex` - a pattern to match (required)
+* `rule.type` - a string label (required)
+* `rule.children` - an array of arrays of rules to apply for each capture group
 
 # install
 
